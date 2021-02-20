@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <input type="number" name="x" />
+    *
+    <input type="number" name="y" />
+    <input type="submit" value="=" onclick="mul()" />
+    <input readonly id="res" />
+
+    <script>
+        function mul() {
+            let request = new XMLHttpRequest();
+            let body = 'x=' + document.getElementsByName('x')[0].value + '&y=' + document.getElementsByName('y')[0].value;
+
+            request.open('POST', '/mult', true);
+            request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
+            request.onreadystatechange = () => {
+                if (request.readyState === 4) {
+                    if (request.status === 200) {
+                        document.getElementById('res').value = request.responseText;
+                    } else {
+                        alert(request.status);
+                    }
+                }
+            };
+            request.send(body);
+        }
+    </script>
+</body>
+</html>
