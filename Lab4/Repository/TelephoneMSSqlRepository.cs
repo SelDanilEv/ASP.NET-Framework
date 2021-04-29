@@ -1,55 +1,38 @@
-﻿using Lab4.Models.BasicModels;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Lab4.Repository
+﻿namespace Lab4.Repository
 {
+    using Infrastructure;
+    using Lab6_EntityLibrary;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
     public class TelephoneMSSqlRepository : ITelephoneRepository
     {
+        private TelephoneManager _telephoneManager;
+        public TelephoneMSSqlRepository()
+        {
+            _telephoneManager = new TelephoneManager();
+        }
+
         public async Task<List<TelephoneNote>> GetTelephoneNotes()
         {
-            var noteList = new List<TelephoneNote>();
-
-            using (var db = new ApplicationContext())
-            {
-                noteList = await db.TelephoneNotes.ToListAsync();
-            }
+            var noteList = await _telephoneManager.GetTelephoneNotes();
 
             return noteList;
         }
 
         public async Task AddTelephoneNote(TelephoneNote telephoneNote)
         {
-            using (var db = new ApplicationContext())
-            {
-                db.TelephoneNotes.Add(telephoneNote);
-                await db.SaveChangesAsync();
-            }
+            await _telephoneManager.AddTelephoneNote(telephoneNote);
         }
 
         public async Task RemoveTelephoneNote(TelephoneNote telephoneNote)
         {
-            using (var db = new ApplicationContext())
-            {
-                db.TelephoneNotes.Remove(db.TelephoneNotes.Find(telephoneNote.Id));
-                await db.SaveChangesAsync();
-            }
+            await _telephoneManager.RemoveTelephoneNote(telephoneNote);
         }
 
         public async Task UpdateTelephoneNote(TelephoneNote telephoneNote)
         {
-            using (var db = new ApplicationContext())
-            {
-                var updatedNote = db.TelephoneNotes.FirstOrDefault(x => x.Id == telephoneNote.Id);
-
-                updatedNote.Name = telephoneNote.Name;
-                updatedNote.Phone = telephoneNote.Phone;
-
-                await db.SaveChangesAsync();
-            }
+            await _telephoneManager.UpdateTelephoneNote(telephoneNote);
         }
     }
 }

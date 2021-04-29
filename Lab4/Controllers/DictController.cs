@@ -1,33 +1,40 @@
-﻿using Lab4.Models;
-using Lab4.Models.BasicModels;
-using Lab4.Repository;
-using System;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-
-namespace Lab4.Controllers
+﻿namespace Lab4.Controllers
 {
+    using Lab4.Models;
+    using Lab4.Repository;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using System.Web.Mvc;
+    using Infrastructure;
+
     public class DictController : Controller
     {
-        private static ITelephoneRepository repository = new TelephoneJSONRepository();
+        private ITelephoneRepository telephoneRepository;
+
+        public DictController(ITelephoneRepository telephoneRepository)
+        {
+            this.telephoneRepository = telephoneRepository;
+        }
+
 
         public ActionResult ChangeSource()
         {
-            if (repository is TelephoneMSSqlRepository)
-            {
-                repository = new TelephoneJSONRepository();
-            }
-            else
-            {
-                repository = new TelephoneMSSqlRepository();
-            }
+            //if (repository is TelephoneMSSqlRepository)
+            //{
+            //    repository = new TelephoneJSONRepository();
+            //}
+            //else
+            //{
+            //    repository = new TelephoneMSSqlRepository();
+            //}
 
             return RedirectToAction(nameof(Index));
         }
 
         public async Task<ActionResult> Index()
         {
-            if (repository is TelephoneMSSqlRepository)
+            if (telephoneRepository is TelephoneMSSqlRepository)
             {
                 ViewBag.CurrentSource = "MS SQL Server";
             }
@@ -35,8 +42,18 @@ namespace Lab4.Controllers
             {
                 ViewBag.CurrentSource = "JSON FILE";
             }
+            List<TelephoneNote> result = null;
 
-            return View(await repository.GetTelephoneNotes());
+            try
+            {
+                result = await telephoneRepository.GetTelephoneNotes();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+            return View(result);
         }
 
         public ActionResult Create()
@@ -50,7 +67,7 @@ namespace Lab4.Controllers
         {
             try
             {
-                await repository.AddTelephoneNote(telephoneNote);
+                await telephoneRepository.AddTelephoneNote(telephoneNote);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -59,9 +76,9 @@ namespace Lab4.Controllers
             }
         }
 
-        public async Task<ActionResult> Update(int id)
+        public async Task<ActionResult> Update(string name)
         {
-            return View((await repository.GetTelephoneNotes()).FindLast(x => x.Id == id));
+            return View((await telephoneRepository.GetTelephoneNotes()).FindLast(x => x.Name == name));
         }
 
         [HttpPost]
@@ -70,7 +87,7 @@ namespace Lab4.Controllers
         {
             try
             {
-                await repository.UpdateTelephoneNote(telephoneNote);
+                await telephoneRepository.UpdateTelephoneNote(telephoneNote);
                 return RedirectToAction("Index");
             }
             catch
@@ -79,9 +96,9 @@ namespace Lab4.Controllers
             }
         }
 
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult> Delete(string name)
         {
-            return View((await repository.GetTelephoneNotes()).FindLast(x => x.Id == id));
+            return View((await telephoneRepository.GetTelephoneNotes()).FindLast(x => x.Name == name));
         }
 
         [HttpPost]
@@ -90,7 +107,8 @@ namespace Lab4.Controllers
         {
             try
             {
-                await repository.RemoveTelephoneNote(telephoneNote);
+                telephoneNote = (await telephoneRepository.GetTelephoneNotes()).FindLast(x => x.Name == telephoneNote.Name);
+                await telephoneRepository.RemoveTelephoneNote(telephoneNote);
                 return RedirectToAction("Index");
             }
             catch(Exception ex)

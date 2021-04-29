@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Ninject;
+using Ninject.Web.Mvc;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
@@ -16,6 +15,10 @@ namespace Lab4
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            UnityConfig.RegisterComponents();
+
+            var kernel = new StandardKernel(new MyConfig());
+            DependencyResolver.SetResolver(new NinjectDependencyResolver(kernel));
         }
     }
 }

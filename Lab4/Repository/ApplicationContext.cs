@@ -1,12 +1,8 @@
-﻿using Lab4.Models.BasicModels;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Web;
-
-namespace Lab4.Repository
+﻿namespace Lab4.Repository
 {
+    using Infrastructure;
+    using System.Data.Entity;
+
     public class ApplicationContext : DbContext
     {
         public ApplicationContext()

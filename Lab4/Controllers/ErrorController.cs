@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-
-namespace Lab4.Controllers
+﻿namespace Lab4.Controllers
 {
+    using System.Linq;
+    using System.Web.Mvc;
+
     public class ErrorController : Controller
     {
         public ActionResult NotFound()

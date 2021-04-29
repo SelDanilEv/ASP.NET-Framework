@@ -1,0 +1,14 @@
+﻿@model Infrastructure.TelephoneNote
+
+<tr>
+    <td>
+        @Html.DisplayFor(model => model.Name)
+    </td>
+    <td>
+        @Html.DisplayFor(model => model.Phone)
+    </td>
+    <td>
+        @Html.ActionLink("Edit", "Update", new { name = Model.Name }) |
+        @Html.ActionLink("Delete", "Delete", new { name = Model.Name })
+    </td>
+</tr>
