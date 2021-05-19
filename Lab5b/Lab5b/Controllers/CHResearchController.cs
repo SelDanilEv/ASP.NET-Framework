@@ -19,7 +19,6 @@ namespace Lab5b.Controllers
             return Content($"{date}");
         }
 
-        
         [HttpPost]
         [OutputCache(Location = OutputCacheLocation.Any, Duration = 7, VaryByParam = "*")]
         public ActionResult AP()

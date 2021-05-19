@@ -1,0 +1,130 @@
+﻿
+@{ Layout = null; }
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <link href="~/Content/bootstrap.css" type="text/css" rel="stylesheet" />
+    <link href="~/Content/Site.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="~/Scripts/jquery-3.4.1.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <style>
+        input {
+            background: #BCAC9B;
+        }
+        button {
+            background: #BCAC9B;
+        }
+
+        body {
+            font-size: large;
+            background: #DDC9B4;
+            color: #2A3D45;
+        }
+
+        #records {
+            background: #C17C74;
+            font-size: x-large;
+            border: double #7A6C5D 2px;
+            padding: 15px;
+        }
+    </style>
+    <div style="width:65%;margin: 10% auto;">
+        <div style="width:fit-content;margin: 10% auto">
+            <label>Name: </label><input type="text" id="Name" /><br />
+            <label>Phone: </label><input type="text" id="Phone" />
+        </div>
+        <div style="width:fit-content;margin: 20px auto">
+            <button onclick="AddRecord()">Add</button>
+            <button onclick="EditRecord()">Update</button>
+            <button onclick="DeleteRecord()">Delete</button>
+        </div>
+        <hr style="background:#ff0000" />
+        <div id="records" style="width:fit-content;margin: 20px auto">
+
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            GetAllRecords();
+        });
+
+        function GetAllRecords() {
+            $.ajax({
+                url: '/api/dict',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    let source = document.getElementById('records');
+                    source.innerHTML = '';
+                    
+                    data.forEach(function (record, i, data) {
+                        source.innerHTML += i+1 + ") Name: " + record.Name + ", Phone: " + record.Phone + "<br>";
+                    });
+                }
+            });
+        }
+
+        function AddRecord() {
+            let telephoneNote = {
+                Name: $('#Name').val(),
+                Phone: $('#Phone').val(),
+            };
+
+            $.ajax({
+                url: '/api/dict/',
+                type: 'POST',
+                data: JSON.stringify(telephoneNote),
+                contentType: "application/json;charset=utf-8",
+                success: function () {
+                    GetAllRecords();
+                }
+            });
+        }
+
+        function DeleteRecord() {
+            let telephoneNote = {
+                Name: $('#Name').val(),
+                Phone: $('#Phone').val(),
+            };
+
+            $.ajax({
+                url: '/api/dict/',
+                type: 'DELETE',
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(telephoneNote),
+                success: function () {
+                    GetAllRecords();
+                }
+            });
+        }
+
+        function EditRecord() {
+            let telephoneNote = {
+                Name: $('#Name').val(),
+                Phone: $('#Phone').val(),
+            };
+
+            $.ajax({
+                url: '/api/dict/',
+                type: 'PUT',
+                data: JSON.stringify(telephoneNote),
+                contentType: "application/json;charset=utf-8",
+                success: function () {
+                    GetAllRecords();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

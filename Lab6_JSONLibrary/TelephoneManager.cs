@@ -5,6 +5,8 @@
     using System.Threading.Tasks;
     using System.Text.Json;
     using System;
+    using Newtonsoft.Json;
+    using System.Linq;
 
     public class TelephoneManager<T> where T : class
     {
@@ -27,12 +29,19 @@
         public async Task<List<T>> GetTelephoneNotes()
         {
             List<T> noteList = new List<T>();
-            List<InternalT> internalTs;
+            List<InternalT> internalTs = new List<InternalT>();
 
-            using (var fs = new FileStream(_path, FileMode.OpenOrCreate))
+            try
             {
-                internalTs = await JsonSerializer.DeserializeAsync<List<InternalT>>(fs);
-                fs.Close();
+                string jsonString = File.ReadAllText(_path);
+                internalTs = JsonConvert.DeserializeObject<List<InternalT>>(jsonString).ToList();
+            }
+            catch (Exception e)
+            {
+            }
+            finally
+            {
+
             }
 
             foreach (var item in internalTs)
@@ -63,11 +72,8 @@
 
             internalTs.Add(new InternalT() { Id = internalTs.Count, Item = item });
 
-            using (var fs = new FileStream(_path, FileMode.OpenOrCreate))
-            {
-                await JsonSerializer.SerializeAsync(fs, internalTs);
-                fs.Close();
-            }
+            string json = JsonConvert.SerializeObject(internalTs);
+            File.WriteAllText(_path, json);
         }
 
         public async Task RemoveTelephoneNote(T item)
@@ -83,11 +89,8 @@
                 internalTs.Add(new InternalT() { Id = internalTs.Count, Item = i });
             }
 
-            using (var fs = new FileStream(_path, FileMode.Truncate))
-            {
-                await JsonSerializer.SerializeAsync(fs, internalTs);
-                fs.Close();
-            }
+            string json = JsonConvert.SerializeObject(internalTs);
+            File.WriteAllText(_path, json);
         }
 
         public async Task UpdateTelephoneNote(T telephoneNote)

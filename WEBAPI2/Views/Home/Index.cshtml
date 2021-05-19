@@ -1,0 +1,180 @@
+﻿
+@{ Layout = null; }
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <link href="~/Content/bootstrap.css" type="text/css" rel="stylesheet" />
+    <link href="~/Content/Site.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="~/Scripts/jquery-3.4.1.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div>
+        <div id="tableBlock"></div>
+        <div style="display: flex; flex-direction: column">
+            <div id="editBlock">
+                <p><b>Edit contact</b></p>
+                <table class="table">
+                    <tr style="padding:10px;"><td><input type="hidden" id="editId" /></td><td></td></tr>
+                    <tr style="padding:10px"><td><label>Name: </label></td><td><input type="text" id="editName" /></td></tr>
+                    <tr style="padding:10px"><td><label>Phone: </label></td><td><input type="text" id="editPhone" /></td></tr>
+                </table>
+                <button class="btn-success" id="editRecord">Save</button>
+            </div>
+            <div id="createBlock">
+                <p><b>Add contact</b></p>
+                <table class="table">
+                    <tr><td><label>Name: </label></td><td><input type="text" id="addName" /></td></tr>
+                    <tr><td><label>Phone: </label></td><td><input type="text" id="addPhone" /></td></tr>
+                </table>
+                <button class="btn-success" id="addRecord">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>$(document).ready(function () {
+            GetAllRecords();
+
+            $("#editRecord").click(function (event) {
+                event.preventDefault();
+                EditRecord();
+            });
+
+            $("#addRecord").click(function (event) {
+                event.preventDefault();
+                AddRecord();
+            });
+
+        });
+
+        function GetAllRecords() {
+            $("#createBlock").css('display', 'block');
+            $("#editBlock").css('display', 'none');
+            $.ajax({
+                url: '/api/dict',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    WriteResponse(data);
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+        }
+
+        function AddRecord() {
+            let contact = {
+                Name: $('#addName').val(),
+                Phone: $('#addPhone').val(),
+            };
+
+            $.ajax({
+                url: '/api/dict/',
+                type: 'POST',
+                data: JSON.stringify(contact),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    GetAllRecords();
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+        }
+
+        function DeleteRecord(id) {
+
+            $.ajax({
+                url: '/api/dict/',
+                type: 'DELETE',
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(id),
+                success: function (data) {
+                    GetAllRecords();
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+        }
+
+        function EditRecord() {
+            let contact = {
+                Id: $('#editId').val(),
+                Name: $('#editName').val(),
+                Phone: $('#editPhone').val()
+            };
+            $.ajax({
+                url: '/api/dict/',
+                type: 'PUT',
+                data: JSON.stringify(contact),
+                contentType: "application/json;charset=utf-8",
+                success: function (data) {
+                    GetAllRecords();
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+        }
+
+        function WriteResponse(contacts) {
+            var strResult = "<table><th style='opacity: 0'>Id</th><th>Name</th><th>Phone</th>";
+            $.each(contacts, function (index, contact) {
+                strResult += "<tr><td style='opacity: 0'>" + contact.Id + "</td><td> " + contact.Name + "</td><td>" +
+                    contact.Phone + "</td><td>" +
+                    "</td><td><a class='btn-success' id='editItem' data-item='" + contact.Id + "' onclick='EditItem(this);' >Update</a></td>" +
+                    "<td><a class='btn-success' id='delItem' data-item='" + contact.Id + "' onclick='DeleteItem(this);' >Delete</a></td></tr>";
+            });
+            strResult += "</table>";
+            $("#tableBlock").html(strResult);
+
+        }
+
+        function DeleteItem(el) {
+            var id = $(el).attr('data-item');
+            DeleteRecord(id);
+        }
+
+        function EditItem(el) {
+            var id = $(el).attr('data-item');
+            GetRecord(id);
+        }
+
+        function ShowRecord(contact) {
+            if (contact != null) {
+                $("#createBlock").css('display', 'none');
+                $("#editBlock").css('display', 'block');
+                $("#editId").val(contact.Id);
+                $("#editName").val(contact.Name);
+                $("#editPhone").val(contact.Phone);
+            }
+            else {
+                alert("Such contact doesn't exist");
+            }
+        }
+
+        function GetRecord(id) {
+            $.ajax({
+                url: '/api/dict/' + id,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    ShowRecord(data);
+                },
+                error: function (x, y, z) {
+                    alert(x + '\n' + y + '\n' + z);
+                }
+            });
+        }</script>
+</body>
+</html>
