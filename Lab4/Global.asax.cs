@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Ninject;
+﻿using Ninject;
 using Ninject.Web.Mvc;
 using System.Web.Mvc;
 using System.Web.Optimization;
